@@ -5,6 +5,14 @@ define('LOG_PATH', dirname(__FILE__) . '/'); //log存放路径
 define('CONFIG_PATH', dirname(__FILE__) . '/'); //配置文件路径
 define('CACHE_IPS_FILE', dirname(__FILE__) . '/cacheIPs.txt'); //ip缓存文件
 
+// QNAP
+// hostname=%HOST%&username=%USER%&password=%PASS%&IP=%IP%
+if(isset($_REQUEST['IP'])) {
+    $ip = $_REQUEST['IP'];
+}else {
+    $ip = '';
+}
+
 !file_exists(CONFIG_PATH . 'config.php') && exit('配置文件不存在');
 
 $config_arr = include(CONFIG_PATH . 'config.php');
@@ -14,7 +22,7 @@ $ServerChan_Url = $config_arr['SERVERCHAN_URL'].$config_arr['SERVERCHAN_KEY'].'.
 require 'functions.php';
 require 'ddns.php';
 
-$ddns = new Ddns($TOKEN, $config_arr['DOMAIN'], $config_arr['SUB']); //实例化
+$ddns = new Ddns($TOKEN, $config_arr['DOMAIN'], $config_arr['SUB'], $ip); //实例化
 
 if (!file_exists(CACHE_IPS_FILE)) {
     $isUpdate = false;
@@ -39,7 +47,7 @@ if ($isUpdate == false) {
     echo '当前ip与记录ip一致，无需修改';
 }
 
-exit();
+exit(0);
 
 
 

@@ -19,18 +19,22 @@ class Ddns {
     /*
      * 初始化
      */
-    public function __construct($token = '', $domain = '', $sub = '')
+    public function __construct($token = '', $domain = '', $sub = '', $ip = '')
     {
         $this->token      = $token;
         $this->domain     = $domain;
         $this->sub_domain = $sub;
         $this->domain_id  = $this->getDomainId();
-
-        $ip = self::getMyIP();
-        while(!$ip) {
+        
+        if($ip == '') {
             $ip = self::getMyIP();
+            while(!$ip) {
+                $ip = self::getMyIP();
+            }
+            $this->ip = $ip;
+        }else {
+            $this->ip = $ip;
         }
-        $this->ip = $ip;
     }
 
     /*
@@ -166,31 +170,38 @@ class Ddns {
     /*
      * 获取用户当前ip
      */
-    public function getMyIP()
-    {
-//        $ip = file_get_contents('http://greak.net/ip');
-//        $ip = file_get_contents('http://pv.sohu.com/cityjson?ie=utf-8');
-        $ip = file_get_contents('http://www.leadnt.com/tools/ip.php');
+    public function getMyIP() {
+        // 先尝试通过命令行获取 
+        /*
+        if(function_exists("shell_exec")) {
+            $ifconfig = shell_exec('/sbin/ifconfig eth0');
+            preg_match('/addr:([\d\.]+)/', $ifconfig, $match);
+            if(isset($match[1])  && $match[1]) {
+                return $match[1];
+            }
+        }
+        */
 
-//        $ip_info = file_get_contents('http://ip.taobao.com/service/getIpInfo2.php?ip=myip');
-//        $ip_info = json_decode($ip_info, true);
-
-//        if ($ip_info['code'] !== 1 || !$ip_info) {
-//            $this->error = '获取当前ip失败';
-//            $this->log('003', $this->error);
-//            return false;
-//        } else {
-//            return trim($ip_info['data']['ip']);
-//        }
-
-
-        if (!$ip) {
+        // 命令行获取失败就通过外网 IP
+        $ch = curl_init("http://ip.taobao.com/service/getIpInfo.php?ip=myip");
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        if ($result === FALSE) {
             $this->error = '获取当前ip失败';
             $this->log('003', $this->error);
             return false;
+        } else {
+            $data = json_decode($result, true);
+            if($data['code'] != 0 || !isset($data['data']['ip'])) {
+                $this->error = '调用第三方接口获取当前ip失败';
+                $this->log('004', $this->error);
+                return false;
+            }else {
+                return trim($data['data']['ip']);
+            }
         }
-
-        return trim($ip);
     }
 
     /*
