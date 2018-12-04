@@ -43,11 +43,16 @@ if ($isUpdate == false) {
         $content = '你的ip地址已经发生变化啦，当前ip地址是：' . $ddns->ip;
         talkToServerChan($ServerChan_Url, $title, $content);
     }
+    echo 'Updated 1 host(s) oking.mooo.com to ' . $ddns->ip . ' in 0.061 seconds';
 } else {
-    echo '当前ip与记录ip一致，无需修改';
+    echo 'ERROR: Address ' . $ddns->ip . ' has not changed.';
+    // echo '当前ip与记录ip一致，无需修改';
 }
 
-exit(0);
+// Updated 1 host(s) oking.mooo.com to 113.97.29.58 in 0.061 seconds
+// ERROR: Address 113.97.29.58 has not changed.
+
+// exit(0);
 
 
 

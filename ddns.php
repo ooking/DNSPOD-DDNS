@@ -211,7 +211,7 @@ class Ddns {
     {
         $str = '【'. date('Y年m月d日 H:i:s') . '】' . 'CODE:' . $code . ', MSG:' . $msg . PHP_EOL;
 
-        echo $str;
+        // echo $str;
 
         $filename = LOG_PATH . 'error.log';
         $result = file_put_contents($filename, $str, FILE_APPEND);
@@ -244,7 +244,7 @@ class Ddns {
         } else {
             $useTime = (time() - $startTime) / 60; //使用多少秒
             $str = '缓存成功，共耗时' . $useTime . '秒';
-            echo $str;
+            // echo $str;
             $this->log(1, $str);
         }
     }
